@@ -46,7 +46,7 @@ const Detail: NextPage<IProps> = ({postDetails}) => {
     if (!post) {
         router.push('/');
         return null;
-    }
+    } 
     return (
         <div className='bg-blurred-img bg-no-repeat bg-cover bg-center h-full w-full fixed top-0 left-0 z-1 overflow-y-auto overflow-x-hidden '>
             <div className='lg:flex w-full h-full'>
