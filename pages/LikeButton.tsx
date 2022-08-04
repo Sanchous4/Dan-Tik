@@ -29,7 +29,7 @@ const LikeButton: NextPage<IProps> = ({post}) => {
 
     const putRequestIsLiked = async () => {
         const callback = async () => {
-            console.log({isLiked});
+            // console.log({isLiked});
             await axios.put(
                 `${process.env.NEXT_PUBLIC_BASE_URL}/api/like`,
                 {userId: userProfile?._id, postId: post._id, like: isLiked}

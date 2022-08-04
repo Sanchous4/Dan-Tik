@@ -13,7 +13,7 @@ const authStore: (set: any) => IAuthStore<IUser> = (set: any) => ({
         set({likeRoute: route});
     },
     setLikeCallback: (properties) => {
-        console.log({properties});
+        // console.log({properties});
         if (!properties.isValid) {
             set({likeCallback: {isValid: false, callback: async () => {}}});
         } else {

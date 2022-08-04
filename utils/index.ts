@@ -26,16 +26,16 @@ export const createOrGetUser = async (
     };
 
     addUser(user);
-    console.log(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth`);
+    // console.log(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth`);
 
     try {
         const result = await axios.post(
             `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth`,
             user
         );
-        console.log({result});
+        // console.log({result});
     } catch (error) {
-        console.log({error});
+        // console.log({error});
         doLogout();
     }
 };
