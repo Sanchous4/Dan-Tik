@@ -1,12 +1,11 @@
 import React, {useMemo, useState} from 'react';
 import {FaCloudUploadAlt} from 'react-icons/fa';
-import {MdDelete} from 'react-icons/md';
 import axios from 'axios';
 import {SanityAssetDocument} from '@sanity/client';
 import useAuthStore from '../store/authStore';
 import {client} from '../utils/client';
 import {topics} from '../utils/constants';
-import { useRouter } from 'next/router';
+import {useRouter} from 'next/router';
 
 const Upload = () => {
     const router = useRouter();
@@ -15,53 +14,66 @@ const Upload = () => {
     const [videoAsset, setVideoAsset] = useState<SanityAssetDocument | null>(
         null
     );
+
     const [wrongFile, setWrongFile] = useState(false);
     const [caption, setCaption] = useState('');
     const [category, setCategory] = useState(topics[0].name);
     const [savingPost, setSavingPost] = useState(false);
 
-    // const {} = useAuthStore();
-    const frameTextStyle = 'border-dashed rounded-xl border-4 border-gray-200 flex flex-col justify-center items-center outline-none mt-10 w-[260px] h-[460px] p-10 cursor-pointer hover:border-red-300 hover:bg-gray-100'
-    const frameVideoStyle = 'border-dashed rounded-xl border-4 border-gray-200 outline-none mt-10 w-full md:w-[400px] h-[460px] p-[4px] cursor-pointer hover:border-red-300 hover:bg-gray-100'
-    const frameSavingPostStyle = 'border-dashed rounded-xl border-4 border-gray-200 flex flex-col justify-center items-center outline-none mt-10 w-[400px] h-[460px] p-10 cursor-pointer hover:border-red-300 hover:bg-gray-100'
+    const currentFrameStyle = useMemo(() => {
+        if (savingPost) {
+            const frameSavingPostStyle =
+                'border-dashed rounded-xl border-4 border-gray-200 flex flex-col justify-center items-center outline-none mt-10 w-[400px] h-[460px] p-10 cursor-pointer hover:border-red-300 hover:bg-gray-100';
+            return frameSavingPostStyle;
+        }
+        if (videoAsset) {
+            const frameVideoStyle =
+                'border-dashed rounded-xl border-4 border-gray-200 outline-none mt-10 w-full md:w-[400px] h-[460px] p-[4px] cursor-pointer hover:border-red-300 hover:bg-gray-100';
+            return frameVideoStyle;
+        }
+        const frameTextStyle =
+            'border-dashed rounded-xl border-4 border-gray-200 flex flex-col justify-center items-center outline-none mt-10 w-[260px] h-[460px] p-10 cursor-pointer hover:border-red-300 hover:bg-gray-100';
+        return frameTextStyle;
+    }, [videoAsset, savingPost]);
 
-    const currentFrameStyle = useMemo(()=>{
-        if(videoAsset)
-        return frameVideoStyle
-        if(savingPost)
-        return frameSavingPostStyle
-        return frameTextStyle
-    },[videoAsset, savingPost])
-
-
-    const handleDiscard = () => setVideoAsset(null);
+    const handleDiscard = () => {
+        setVideoAsset(null);
+        setIsLoading(false);
+    };
 
     const handlePost = async () => {
-        if(caption && videoAsset?._id && category && userProfile?._id) {
+        if (caption && videoAsset?._id && category && userProfile?._id) {
             setSavingPost(true);
             const document = {
                 _type: 'post',
                 caption,
-                video : {
+                video: {
                     _type: 'file',
-                    asset : {
+                    asset: {
                         _type: 'reference',
-                        _ref: videoAsset?._id
-                    }
+                        _ref: videoAsset?._id,
+                    },
                 },
                 userId: userProfile._id,
                 postedBy: {
                     _type: 'postedBy',
-                    _ref : userProfile?._id
+                    _ref: userProfile?._id,
                 },
-                topic: category
-            }
+                topic: category,
+            };
 
-            await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/post`, document);
-            setSavingPost(false);
+            try {
+                await axios.post(
+                    `${process.env.NEXT_PUBLIC_BASE_URL}/api/post`,
+                    document
+                );
+            } catch (error) {
+                console.error({error});
+            }
+            handleDiscard();
             router.push('/');
         }
-    }
+    };
 
     const uploadVideo = async (e: React.ChangeEvent<HTMLInputElement>) => {
         let selectedFile: File | null = null;
@@ -78,32 +90,41 @@ const Upload = () => {
 
         if (!isWrongType) {
             setIsLoading(true);
-            const data = await client.assets.upload('file', selectedFile, {
-                contentType: selectedFile.type,
-                filename: selectedFile.name,
-            });
-            setVideoAsset(data);
-            setIsLoading(false);
+            try {
+                const data = await client.assets.upload('file', selectedFile, {
+                    contentType: selectedFile.type,
+                    filename: selectedFile.name,
+                });
+                setVideoAsset(data);
+                setIsLoading(false);
+            } catch (error) {
+                console.error({error});
+                handleDiscard();
+            }
         }
     };
 
+    if (!userProfile) {
+        router.push('/');
+        return null;
+    }
     return (
         <div className='flex xl:w-[1200px] w-full h-full justify-center'>
             <div className='bg-white shadow-lg rounded-2xl h-[98%] flex gap-6 flex-wrap justify-between items-center p-14 pt-6 w-[90%] md:w-[80%] overflow-auto'>
                 <div>
-                    <div className="">
+                    <div className=''>
                         <p className='text-2xl font-bold'>Upload Video</p>
                         <p className='text-base text-gray-400 mt-1'>
                             Post a video to your account
                         </p>
                     </div>
                     <div className={currentFrameStyle}>
-                        {(isLoading || savingPost) ? (
+                        {isLoading || savingPost ? (
                             <p>Uploading...</p>
                         ) : (
-                            <div className="w-full h-full">
+                            <div className='w-full h-full'>
                                 {videoAsset ? (
-                                    <div className="flex justify-center w-full h-full ">
+                                    <div className='flex justify-center w-full h-full '>
                                         <video
                                             src={videoAsset.url}
                                             loop
@@ -166,11 +187,12 @@ const Upload = () => {
                     </label>
                     <select
                         onChange={(e) => setCategory(e.target.value)}
-                        defaultValue="default"
+                        defaultValue='default'
                         className='outline-none border-2 border-gray-200 text-base capitalize lg:p-4 p-2 rounded cursor-pointer'
-                        
                     >
-                        <option value="default" disabled hidden>Choose here</option>
+                        <option value='default' disabled hidden>
+                            Choose here
+                        </option>
                         {topics.map((topic) => (
                             <option
                                 className='outline-none capitalize bg-white text-gray-700 text-base p-2 hover:bg-slate-300'

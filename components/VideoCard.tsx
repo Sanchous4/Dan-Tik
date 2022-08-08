@@ -13,8 +13,6 @@ interface IProps {
 }
 
 const VideoCard: NextPage<IProps> = ({post, bottomLine}) => {
-    
-
     const checkIsMobile = (size: number) => window.innerWidth <= size;
     const isMobile = checkIsMobile(768);
 
@@ -33,6 +31,8 @@ const VideoCard: NextPage<IProps> = ({post, bottomLine}) => {
         playing ? videoRef?.current?.play() : videoRef?.current?.pause();
         setPlaying(!playing);
     };
+
+    const colorControlsForMobile = 'text-gray-300';
 
     const onMutePress = () => {
         setIsVideoMuted(!isVideoMuted);
@@ -96,30 +96,30 @@ const VideoCard: NextPage<IProps> = ({post, bottomLine}) => {
                     </Link>
                     {/* absolute bottom-6 cursor-pointer left-8 md:left-14 lg:left-0 flex gap-10 justify-between lg:justify-between w-full md:w-[50px] p-3 */}
                     {(isHover || isMobile) && (
-                        <div className='absolute bottom-6 cursor-pointer lg:left-0 flex gap-10 justify-between w-full p-4'>
+                        <div className='absolute bottom-7 cursor-pointer left-0 flex justify-between w-full px-6'>
                             {playing ? (
                                 <button onClick={onVideoPress}>
                                     <BsFillPlayFill
-                                        className={`text-white lg:text-black text-2xl ${controlsOpacity} lg:text-4xl`}
+                                        className={`${colorControlsForMobile} lg:text-black text-2xl ${controlsOpacity} lg:text-4xl`}
                                     />
                                 </button>
                             ) : (
                                 <button onClick={onVideoPress}>
                                     <BsFillPauseFill
-                                        className={`text-white lg:text-black text-2xl ${controlsOpacity} lg:text-4xl`}
+                                        className={`${colorControlsForMobile} lg:text-black text-2xl ${controlsOpacity} lg:text-4xl`}
                                     />
                                 </button>
                             )}
                             {isVideoMuted ? (
                                 <button onClick={onMutePress}>
                                     <HiVolumeOff
-                                        className={`text-white lg:text-black text-2xl ${controlsOpacity} lg:text-4xl`}
+                                        className={`${colorControlsForMobile} lg:text-black text-2xl ${controlsOpacity} lg:text-4xl`}
                                     />
                                 </button>
                             ) : (
                                 <button onClick={onMutePress}>
                                     <HiVolumeUp
-                                        className={`text-white lg:text-black text-2xl ${controlsOpacity} lg:text-4xl`}
+                                        className={`${colorControlsForMobile} lg:text-black text-2xl ${controlsOpacity} lg:text-4xl`}
                                     />
                                 </button>
                             )}
